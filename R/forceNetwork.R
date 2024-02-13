@@ -153,6 +153,11 @@ forceNetwork <- function(Links,
                          NodeID,
                          Nodesize,
                          Group,
+                         X,
+                         Y,
+                         dx,
+                         dy,
+                         rotate_angle,
                          height = NULL,
                          width = NULL,
                          colourScale = JS("d3.scaleOrdinal(d3.schemeCategory20);"),
@@ -203,8 +208,8 @@ forceNetwork <- function(Links,
             names(NodesDF) <- c("name", "group", "nodesize")
             nodesize = TRUE
     } else {
-            NodesDF <- data.frame(Nodes[, NodeID], Nodes[, Group])
-            names(NodesDF) <- c("name", "group")
+            NodesDF <- data.frame(Nodes[, NodeID], Nodes[, Group], Nodes[, X], Nodes[, Y], Nodes[, dx], Nodes[, dy], Nodes[, rotate_angle])
+            names(NodesDF) <- c("name", "group", "x", "y", "dx", "dy", "rotation")
             nodesize = FALSE
     }
 
@@ -215,6 +220,11 @@ forceNetwork <- function(Links,
     options = list(
             NodeID = NodeID,
             Group = Group,
+            X = X,
+            Y = Y,
+            dx = dx,
+            dy = dy,
+            rotate_angle = rotate_angle,
             colourScale = colourScale,
             fontSize = fontSize,
             fontFamily = fontFamily,

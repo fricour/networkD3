@@ -42,6 +42,12 @@ HTMLWidgets.widget({
     // convert links and nodes data frames to d3 friendly format
     var links = HTMLWidgets.dataframeToD3(x.links);
     var nodes = HTMLWidgets.dataframeToD3(x.nodes);
+    
+    // Flo added
+    nodes.forEach(node => {
+        node.fx = node.x;
+        node.fy = node.y;
+    });
 
     // create linkedByIndex to quickly search for node neighbors
     // adapted from: http://stackoverflow.com/a/8780277/4389763
@@ -88,8 +94,8 @@ HTMLWidgets.widget({
       }
       function dragended(d) {
         if (!d3.event.active) force.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
+        d.fx = d3.event.x; // Flo: stop the drag at the point where it is dragged
+        d.fy = d3.event.y; // Flo: same comment
       }
 
     // select the svg element and remove existing children
@@ -176,8 +182,11 @@ HTMLWidgets.widget({
 
     node.append("svg:text")
       .attr("class", "nodetext")
-      .attr("dx", 12)
-      .attr("dy", ".35em")
+      .attr("dx", function(d) { return d.dx; }) // Flo added
+      .attr("dy", function(d) { return d.dy; }) // Flo added
+      .attr("transform", function(d) { // Flo added
+          return "rotate(" + d.rotation + ")"; 
+       })
       .text(function(d) { return d.name })
       .style("font", options.fontSize + "px " + options.fontFamily)
       .style("opacity", options.opacityNoHover)
