@@ -8,8 +8,9 @@ HTMLWidgets.widget({
 
     d3.select(el).append("svg")
         .attr("width", width)
-        .attr("height", height);
-
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height]); // added viewBox to center plot manually
+        
     return d3.forceSimulation();
   },
 
@@ -17,8 +18,9 @@ HTMLWidgets.widget({
 
     d3.select(el).select("svg")
         .attr("width", width)
-        .attr("height", height);
-
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height]);
+        
     force.force("center", d3.forceCenter(width / 2, height / 2))
         .restart();
   },
@@ -43,7 +45,7 @@ HTMLWidgets.widget({
     var links = HTMLWidgets.dataframeToD3(x.links);
     var nodes = HTMLWidgets.dataframeToD3(x.nodes);
     
-    // Flo added
+    // add fixed positions for nodes (hence force is not needed anymore but eh...)
     nodes.forEach(node => {
         node.fx = node.x;
         node.fy = node.y;
@@ -122,6 +124,27 @@ HTMLWidgets.widget({
     } else {
       zoom.on("zoom", null);
     }
+    
+    // Add a tooltip div to the SVG container
+    var tooltip = d3.select(el).select("svg")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("background-color", "red")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px");
+        
+    var mouseover2 = function(d){
+        tooltip
+          .style("opacity", 0)
+          .html("test")
+          //.style("left", (d3.mouse(this)[0]+90) + "px")
+          //.style("top", (d3.mouse(this)[1]) + "px");
+          .style("left", (d3.event.pageX + 10) + "px")
+          .style("top", (d3.event.pageY - 10) + "px");
+    }
 
     // draw links
     var link = svg.selectAll(".link")
@@ -130,15 +153,18 @@ HTMLWidgets.widget({
       .attr("class", "link")
       .style("stroke", function(d) { return d.colour ; })
       //.style("stroke", options.linkColour)
-      .style("opacity", options.opacity)
+      .style("opacity", 0.25)
       .style("stroke-width", eval("(" + options.linkWidth + ")"))
-      .on("mouseover", function(d) {
+      //.on("mouseover", mouseover2)
+      .on("mouseover", function(d) { 
           d3.select(this)
-            .style("opacity", 1);
+            .style("opacity", 1)
+            .style("stroke-width", 3)
       })
-      .on("mouseout", function(d) {
+      .on("mouseout", function(d) { // remove mouseout effect for links (to keep them highlighted until we change the node)
           d3.select(this)
-            .style("opacity", options.opacity);
+            .style("opacity", 0.5)
+            .style("stroke-width", eval("(" + options.linkWidth + ")"));
       });
 
     if (options.arrows) {
@@ -170,7 +196,7 @@ HTMLWidgets.widget({
       .style("fill", function(d) { return color(d.group); })
       .style("opacity", options.opacity)
       .on("mouseover", mouseover)
-      .on("mouseout", mouseout)
+      .on("mouseout", mouseout) // not needed in our application
       .on("click", click)
       .call(drag);
 
@@ -188,6 +214,7 @@ HTMLWidgets.widget({
           return "rotate(" + d.rotation + ")"; 
        })
       .text(function(d) { return d.name })
+      .style("text-anchor", function(d) { return d.text_anchor; })
       .style("font", options.fontSize + "px " + options.fontFamily)
       .style("opacity", options.opacityNoHover)
       .style("pointer-events", "none");
@@ -227,7 +254,7 @@ HTMLWidgets.widget({
     function mouseover(d) {
       // unfocus non-connected links and nodes
       //if (options.focusOnHover) {
-        var unfocusDivisor = 4;
+        var unfocusDivisor = 4; // related to link opacity when we mouse over a node
 
         link.transition().duration(200)
           .style("opacity", function(l) { return d != l.source && d != l.target ? +options.opacity / unfocusDivisor : +options.opacity });
@@ -235,13 +262,14 @@ HTMLWidgets.widget({
         node.transition().duration(200)
           .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; });
       //}
-
+        
       d3.select(this).select("circle").transition()
         .duration(750)
         .attr("r", function(d){return nodeSize(d)+5;});
+        //.attr("r", function(d){return nodeSize(d);}); // +5 not needed for our application
       d3.select(this).select("text").transition()
         .duration(750)
-        .attr("x", 13)
+        //.attr("x", 13)
         .style("stroke-width", ".5px")
         .style("font", options.clickTextSize + "px ")
         .style("opacity", 1);
@@ -249,7 +277,8 @@ HTMLWidgets.widget({
 
     function mouseout() {
       node.style("opacity", +options.opacity);
-      link.style("opacity", +options.opacity);
+      link.style("opacity", 0.25); 
+      //link.style("stroke-width", 3);
 
       d3.select(this).select("circle").transition()
         .duration(750)
