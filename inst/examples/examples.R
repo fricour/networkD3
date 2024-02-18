@@ -84,6 +84,7 @@ nodes[nodes$group == "pressure",]$dx <- 12
 nodes[nodes$group == "pressure",]$dy <- ".35em"
 nodes[nodes$group == "pressure",]$rotation <- -20
 nodes[nodes$group == "pressure",]$text_anchor <- "start"
+nodes[nodes$group == "pressure",]$NodeID <- paste0('[',nodes[nodes$group == "pressure",]$id, '] ', nodes[nodes$group == "pressure",]$NodeID)
 
 nodes[nodes$group == "component",]$x <- 0
 nodes[nodes$group == "component",]$y <- seq(from = 50, to = max_y+100, length.out = n_comp)
@@ -91,6 +92,7 @@ nodes[nodes$group == "component",]$dx <- -12
 nodes[nodes$group == "component",]$dy <- ".35em"
 nodes[nodes$group == "component",]$rotation <- 0
 nodes[nodes$group == "component",]$text_anchor <- "end"
+nodes[nodes$group == "component",]$NodeID <- paste0(nodes[nodes$group == "component",]$NodeID, ' [', nodes[nodes$group == "component",]$id, ']')
 
 nodes[nodes$group == "function",]$x <- max_x+100
 nodes[nodes$group == "function",]$y <- seq(from = 50, to = max_y+100, length.out = n_func)
@@ -98,6 +100,7 @@ nodes[nodes$group == "function",]$dx <- 12
 nodes[nodes$group == "function",]$dy <- ".35em"
 nodes[nodes$group == "function",]$rotation <- 0
 nodes[nodes$group == "function",]$text_anchor <- "start"
+nodes[nodes$group == "function",]$NodeID <- paste0('[',nodes[nodes$group == "function",]$id, '] ', nodes[nodes$group == "function",]$NodeID)
 
 nodes[nodes$group == "service",]$x <- seq(from = min_x-50, to = max_x, length.out = n_serv)
 nodes[nodes$group == "service",]$y <- max_y+150
@@ -105,6 +108,8 @@ nodes[nodes$group == "service",]$dx <- 12
 nodes[nodes$group == "service",]$dy <- ".35em"
 nodes[nodes$group == "service",]$rotation <- 20
 nodes[nodes$group == "service",]$text_anchor <- "start"
+nodes[nodes$group == "service",]$NodeID <- paste0('[',nodes[nodes$group == "service",]$id, ']', nodes[nodes$group == "service",]$NodeID)
+
 
 # colour for domains + when there is no domain -> black
 nodes[nodes$section == "turbine",]$domain <- "turbine"
