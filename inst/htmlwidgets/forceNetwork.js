@@ -125,26 +125,15 @@ HTMLWidgets.widget({
       zoom.on("zoom", null);
     }
     
-    // Add a tooltip div to the SVG container
-    var tooltip = d3.select(el).select("svg")
-        .append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0)
-        .style("background-color", "red")
-        .style("border", "solid")
-        .style("border-width", "2px")
-        .style("border-radius", "5px")
-        .style("padding", "5px");
-        
-    var mouseover2 = function(d){
-        tooltip
-          .style("opacity", 0)
-          .html("test")
-          //.style("left", (d3.mouse(this)[0]+90) + "px")
-          //.style("top", (d3.mouse(this)[1]) + "px");
-          .style("left", (d3.event.pageX + 10) + "px")
-          .style("top", (d3.event.pageY - 10) + "px");
-    }
+    // create a tooltip -> not working
+    var tooltip = svg.append('div')
+         .attr('class','tooltip')
+         .style("position", "absolute")
+         .style("z-index", "10")
+         .attr('width', 200)
+         .attr('height', 200)
+         .attr('id', 'tooltip')
+         .text("a simple tooltip")
 
     // draw links
     var link = svg.selectAll(".link")
@@ -155,7 +144,6 @@ HTMLWidgets.widget({
       //.style("stroke", options.linkColour)
       .style("opacity", 0.25)
       .style("stroke-width", eval("(" + options.linkWidth + ")"))
-      //.on("mouseover", mouseover2)
       .on("mouseover", function(d) { 
           d3.select(this)
             .style("opacity", 1)
@@ -166,6 +154,21 @@ HTMLWidgets.widget({
             .style("opacity", 0.5)
             .style("stroke-width", eval("(" + options.linkWidth + ")"));
       });
+      
+    var formatNumber = d3.format(",.0f"),
+        format = function(d) { 
+            if (typeof d === "string") return d;
+            return formatNumber(d); 
+        }
+      
+    link.append("title")
+      .append("foreignObject")
+      .append("xhtml:body")
+      .style("background-color", "red")
+      .html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +"</pre>" +
+          "\n\nDisplay value: " + format(d.value)
+      });
+      
 
     if (options.arrows) {
       link.style("marker-end",  function(d) { return "url(#arrow-" + d.colour + ")"; });
@@ -187,7 +190,7 @@ HTMLWidgets.widget({
           .append("path")
             .attr("d", "M0,-5 L10,0 L0,5");
     }
-
+    
     // draw nodes
     var node = svg.selectAll(".node")
       .data(force.nodes())
@@ -204,7 +207,7 @@ HTMLWidgets.widget({
       .attr("r", function(d){return nodeSize(d);})
       .style("stroke", "#fff")
       .style("opacity", options.opacity)
-      .style("stroke-width", "1.5px");
+      .style("stroke-width", "1.5px")
 
     node.append("svg:text")
       .attr("class", "nodetext")

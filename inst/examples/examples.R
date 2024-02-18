@@ -136,4 +136,3 @@ networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target 
                         fontSize = 12, opacityNoHover = 1, linkDistance = 200,
                         fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
                         colourScale = htmlwidgets::JS('d3.scaleOrdinal().domain(["turbine", "scour protection layer", "soft sediment", "water column", "pressures - functions - services"]).range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "black"])'))
-
