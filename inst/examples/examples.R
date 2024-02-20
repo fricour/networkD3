@@ -64,8 +64,7 @@ max_x <- 600
 max_y <- 600
 
 # create nodes table for networkD3 (parameter for the look of the final plot such as dx, dy and rotation of text)
-node_table <- vroom::vroom('/home/flo/WORK/work_rbins/owf-es/golem/data-raw/2023/csv/node_list.csv')
-nodes <- node_table |>
+nodes <- owidex::node_table |>
     as.data.frame() |>
     dplyr::select(NodeID = node, group = type, section, id) |>
     # add x and y position based on local build of networkD3
