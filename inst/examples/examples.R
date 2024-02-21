@@ -132,6 +132,9 @@ links <- links |>
     } )) |>
     dplyr::mutate(source = as.numeric(source), target = as.numeric(target))
 
+MyClickScript <- 'alert("You clicked " + d.name + " which is in row " +
+       (d.index + 1) +  " of your original R data frame");'
+
 networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target = "target",
                         NodeID = "NodeID", Group = "domain", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
                         text_anchor = "text_anchor",
@@ -139,4 +142,57 @@ networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target 
                         arrows = TRUE, linkColour = links$colour_sign, Value = "effect",
                         fontSize = 12, opacityNoHover = 1, linkDistance = 200,
                         fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
+                        clickAction = MyClickScript,
                         colourScale = htmlwidgets::JS('d3.scaleOrdinal().domain(["turbine", "scour protection layer", "soft sediment", "water column", "pressures - functions - services"]).range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "black"])'))
+
+
+## check
+
+# based on this: https://stackoverflow.com/questions/36895960/linking-a-node-in-networkd3-to-a-website-using-clickaction-null?rq=3
+
+# but check also this: https://stackoverflow.com/questions/52477969/r-networkd3-click-action-to-show-information-from-node-data-frame
+library(networkD3)
+
+data(MisLinks)
+data(MisNodes)
+
+MisNodes <- dplyr::mutate(MisNodes, x = NA, y = NA, dx = NA, dy = NA, rotation = NA, text_anchor=NA)
+
+tmp <- networkD3::forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source", Target = "target",
+                        NodeID = "name", Group = "group", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
+                        text_anchor = "text_anchor", zoom = TRUE)
+
+tmp$x$nodes$hyperlink <- paste0(
+        'http://en.wikipedia.org/wiki/Special:Search?search=',
+         MisNodes$name
+)
+
+tmp$x$links$hyperlink <- paste0(
+    'http://en.wikipedia.org/wiki/'
+)
+
+tmp$x$options$clickAction = 'window.open(d.hyperlink)'
+
+tmp
+
+## OKAY, back to the main dataframe
+
+test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target = "target",
+                        NodeID = "NodeID", Group = "domain", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
+                        text_anchor = "text_anchor",
+                        zoom = TRUE, opacity = 1, legend = TRUE,
+                        arrows = TRUE, linkColour = links$colour_sign, Value = "effect",
+                        fontSize = 12, opacityNoHover = 1, linkDistance = 200,
+                        fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
+                        colourScale = htmlwidgets::JS('d3.scaleOrdinal().domain(["turbine", "scour protection layer", "soft sediment", "water column", "pressures - functions - services"]).range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "black"])'))
+
+test$x$links$hyperlink <- "'http://en.wikipedia.org/wiki/' 'https://google.com'"
+
+test$x$options$clickAction <- 'window.open(d.hyperlink)'
+
+test$x$options$clickAction <- 'var links = ["https://google.com", "https://example.org", "https://example.net"];
+
+// Open each link in a new window/tab
+links.forEach(function(link) {
+    window.open(link);
+});'

@@ -125,7 +125,7 @@ HTMLWidgets.widget({
       zoom.on("zoom", null);
     }
     
-    // create a tooltip -> not working
+    // create a tooltip -> not working -> see link.append(title)
     var tooltip = svg.append('div')
          .attr('class','tooltip')
          .style("position", "absolute")
@@ -142,8 +142,9 @@ HTMLWidgets.widget({
       .attr("class", "link")
       .style("stroke", function(d) { return d.colour ; })
       //.style("stroke", options.linkColour)
-      .style("opacity", 0.25)
+      .style("opacity", 0.2)
       .style("stroke-width", eval("(" + options.linkWidth + ")"))
+      .on("click", click)
       .on("mouseover", function(d) { 
           d3.select(this)
             .style("opacity", 1)
@@ -151,7 +152,7 @@ HTMLWidgets.widget({
       })
       .on("mouseout", function(d) { // remove mouseout effect for links (to keep them highlighted until we change the node)
           d3.select(this)
-            .style("opacity", 0.5)
+            .style("opacity", 0.2)
             .style("stroke-width", eval("(" + options.linkWidth + ")"));
       });
       
@@ -161,12 +162,17 @@ HTMLWidgets.widget({
             return formatNumber(d); 
         }
       
+    // replace non working tootip
     link.append("title")
       .append("foreignObject")
       .append("xhtml:body")
-      .style("background-color", "red")
-      .html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +"</pre>" +
-          "\n\nDisplay value: " + format(d.value)
+      .html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +"</pre>" + 
+          "\n\nType: " + d.type +
+          "\n\nEffect: " + d.effect +
+          "\nArea: " + d.area +
+          "\nConfidence: " + d.confidence
+          //"\nEffect*Area: " + d.effect_area
+          //"\n\nDisplay value: " + format(d.value) 
       });
       
 
@@ -200,7 +206,7 @@ HTMLWidgets.widget({
       .style("opacity", options.opacity)
       .on("mouseover", mouseover)
       .on("mouseout", mouseout) // not needed in our application
-      .on("click", click)
+      //.on("click", click)
       .call(drag);
 
     node.append("circle")
@@ -260,7 +266,8 @@ HTMLWidgets.widget({
         var unfocusDivisor = 4; // related to link opacity when we mouse over a node
 
         link.transition().duration(200)
-          .style("opacity", function(l) { return d != l.source && d != l.target ? +options.opacity / unfocusDivisor : +options.opacity });
+          //.style("opacity", function(l) { return d != l.source && d != l.target ? +options.opacity / unfocusDivisor : +options.opacity });
+          .style("opacity", function(l) { return d != l.source && d != l.target ? 0 : +options.opacity }); // non-targeted links -> opacity = 0
 
         node.transition().duration(200)
           .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; });
