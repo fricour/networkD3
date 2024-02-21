@@ -145,7 +145,6 @@ networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target 
                         clickAction = MyClickScript,
                         colourScale = htmlwidgets::JS('d3.scaleOrdinal().domain(["turbine", "scour protection layer", "soft sediment", "water column", "pressures - functions - services"]).range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "black"])'))
 
-
 ## check
 
 # based on this: https://stackoverflow.com/questions/36895960/linking-a-node-in-networkd3-to-a-website-using-clickaction-null?rq=3
@@ -153,29 +152,47 @@ networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target 
 # but check also this: https://stackoverflow.com/questions/52477969/r-networkd3-click-action-to-show-information-from-node-data-frame
 library(networkD3)
 
-data(MisLinks)
-data(MisNodes)
-
-MisNodes <- dplyr::mutate(MisNodes, x = NA, y = NA, dx = NA, dy = NA, rotation = NA, text_anchor=NA)
-
-tmp <- networkD3::forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source", Target = "target",
-                        NodeID = "name", Group = "group", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
-                        text_anchor = "text_anchor", zoom = TRUE)
-
-tmp$x$nodes$hyperlink <- paste0(
-        'http://en.wikipedia.org/wiki/Special:Search?search=',
-         MisNodes$name
-)
-
-tmp$x$links$hyperlink <- paste0(
-    'http://en.wikipedia.org/wiki/'
-)
-
-tmp$x$options$clickAction = 'window.open(d.hyperlink)'
-
-tmp
+# data(MisLinks)
+# data(MisNodes)
+# 
+# MisNodes <- dplyr::mutate(MisNodes, x = NA, y = NA, dx = NA, dy = NA, rotation = NA, text_anchor=NA)
+# 
+# tmp <- networkD3::forceNetwork(Links = MisLinks, Nodes = MisNodes, Source = "source", Target = "target",
+#                         NodeID = "name", Group = "group", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
+#                         text_anchor = "text_anchor", zoom = TRUE)
+# 
+# tmp$x$nodes$hyperlink <- paste0(
+#         'http://en.wikipedia.org/wiki/Special:Search?search=',
+#          MisNodes$name
+# )
+# 
+# tmp$x$links$hyperlink <- paste0(
+#     'http://en.wikipedia.org/wiki/'
+# )
+# 
+# tmp$x$options$clickAction = 'window.open(d.hyperlink)'
+# 
+# tmp
 
 ## OKAY, back to the main dataframe
+
+fetch_reference <- function(input, reference_df){
+    if(length(input) == 1){
+        if(!is.na(input)){
+            return(reference_df[reference_df$ref_id == input,]$url)
+        }else{
+            return(NA)
+        }
+    }else{
+        tmp <- purrr::map(input, function(j){
+            return(reference_df[reference_df$ref_id == j,]$url)
+        })
+        return(tmp)
+    }
+}
+
+links <- links |>
+    dplyr::mutate(url = purrr::map(refs, .f = fetch_reference, reference_df = owidex::refs))
 
 test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target = "target",
                         NodeID = "NodeID", Group = "domain", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
@@ -186,7 +203,8 @@ test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source",
                         fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
                         colourScale = htmlwidgets::JS('d3.scaleOrdinal().domain(["turbine", "scour protection layer", "soft sediment", "water column", "pressures - functions - services"]).range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "black"])'))
 
-test$x$links$hyperlink <- "'http://en.wikipedia.org/wiki/' 'https://google.com'"
+#test$x$links$hyperlink <- "'http://en.wikipedia.org/wiki/' 'https://google.com'"
+test$x$links$hyperlink <- links$url
 
 test$x$options$clickAction <- 'window.open(d.hyperlink)'
 
@@ -196,3 +214,4 @@ test$x$options$clickAction <- 'var links = ["https://google.com", "https://examp
 links.forEach(function(link) {
     window.open(link);
 });'
+
