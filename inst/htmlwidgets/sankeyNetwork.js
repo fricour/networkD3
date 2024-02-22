@@ -170,8 +170,11 @@ HTMLWidgets.widget({
         link.append("title")
             .append("foreignObject")
             .append("xhtml:body")
-            .html(function(d) { return "<pre>HELLO" + d.source.name + " \u2192 " + d.target.name +
-                "\n" + format(d.value) + " " + options.units + "</pre>"; });
+            //.html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +
+            //    "\n" + format(d.value) + " " + options.units + "</pre>"; });
+            .html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +"</pre>" + 
+            "\n\nMean confidence: " + d.confidence
+      });
 
         node.append("rect")
             .attr("height", function(d) { return d.dy; })
@@ -184,8 +187,8 @@ HTMLWidgets.widget({
             .append("title")
             .append("foreignObject")
             .append("xhtml:body")
-            .html(function(d) { return "<pre>" + d.name + "<br>" + format(d.value) + 
-                " " + options.units + "</pre>"; });
+            .html(function(d) { return "<pre>" + d.name  + 
+                " " + "</pre>"; });
 
         node.append("text")
             .attr("x", -6)

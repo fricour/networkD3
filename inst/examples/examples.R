@@ -215,3 +215,16 @@ links.forEach(function(link) {
     window.open(link);
 });'
 
+## test with sankey diagram
+
+URL <- paste0('https://cdn.rawgit.com/christophergandrud/networkD3/',
+                   'master/JSONdata/energy.json')
+energy <- jsonlite::fromJSON(URL)
+
+# Plot
+p <- sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
+              Target = 'target', Value = 'value', NodeID = 'name',
+              units = 'TWh', fontSize = 12, nodeWidth = 30)
+
+p$x$links$confidence <- 100
+p
