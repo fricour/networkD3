@@ -142,17 +142,17 @@ HTMLWidgets.widget({
       .attr("class", "link")
       .style("stroke", function(d) { return d.colour ; })
       //.style("stroke", options.linkColour)
-      .style("opacity", 0.2)
+      .style("opacity", 1)
       .style("stroke-width", eval("(" + options.linkWidth + ")"))
       .on("click", click)
       .on("mouseover", function(d) { 
           d3.select(this)
             .style("opacity", 1)
-            .style("stroke-width", 3)
+            .style("stroke-width", 5)
       })
       .on("mouseout", function(d) { // remove mouseout effect for links (to keep them highlighted until we change the node)
           d3.select(this)
-            .style("opacity", 0.2)
+            .style("opacity", 1)
             .style("stroke-width", eval("(" + options.linkWidth + ")"));
       });
       
@@ -170,9 +170,8 @@ HTMLWidgets.widget({
           "\n\nType: " + d.type +
           "\n\nEffect: " + d.effect +
           "\nArea: " + d.area +
-          "\nConfidence: " + d.confidence
-          //"\nEffect*Area: " + d.effect_area
-          //"\n\nDisplay value: " + format(d.value) 
+          "\nConfidence: " + d.confidence +
+          "\n\nReference(s): \n" + d.reference
       });
       
 
@@ -287,7 +286,7 @@ HTMLWidgets.widget({
 
     function mouseout() {
       node.style("opacity", +options.opacity);
-      link.style("opacity", 0.25); 
+      link.style("opacity", +options.opacity); 
       //link.style("stroke-width", 3);
 
       d3.select(this).select("circle").transition()

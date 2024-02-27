@@ -175,11 +175,10 @@ library(networkD3)
 # tmp
 
 ## OKAY, back to the main dataframe
-
 fetch_reference <- function(input, reference_df){
     if(length(input) == 1){
         if(!is.na(input)){
-            return(reference_df[reference_df$ref_id == input,]$url)
+            return(unlist(reference_df[reference_df$ref_id == input,]$url))
         }else{
             return(NA)
         }
@@ -187,12 +186,54 @@ fetch_reference <- function(input, reference_df){
         tmp <- purrr::map(input, function(j){
             return(reference_df[reference_df$ref_id == j,]$url)
         })
+        return(paste(unlist(tmp), collapse = " "))
+    }
+}
+
+fetch_newest_reference <- function(input, reference_df){
+    if(length(input) == 1){
+        if(!is.na(input)){
+            return(unlist(reference_df[reference_df$ref_id == input,]$url))
+        }else{
+            return(NA)
+        }
+    }else{
+        tmp <- purrr::map(input, function(j){
+            return(reference_df[reference_df$ref_id == j,]$year)
+        })
+        # get index for the most recent ref
+        index <- which.max(tmp)
+        # rerun input but now on url
+        tmp <- purrr::map(input, function(j){
+            return(reference_df[reference_df$ref_id == j,]$url)
+        })
+        # get most recent ref
+        tmp <- tmp[[index]]
+        
         return(tmp)
     }
 }
 
+fetch_author_year_title <- function(input, reference_df){
+    if(length(input) == 1){
+        if(!is.na(input)){
+            return(unlist(reference_df[reference_df$ref_id == input,]$ref_short))
+        }else{
+            return(NA)
+        }
+    }else{
+        tmp <- purrr::map(input, function(j){
+            return(reference_df[reference_df$ref_id == j,]$ref_short)
+        })
+        return(paste(unlist(tmp), collapse = " "))
+    }
+}
+
 links <- links |>
-    dplyr::mutate(url = purrr::map(refs, .f = fetch_reference, reference_df = owidex::refs))
+    dplyr::mutate(url = purrr::map(refs, .f = fetch_newest_reference, reference_df = owidex::refs))
+
+links <- links |>
+    dplyr::mutate(ref_short = purrr::map(refs, .f = fetch_author_year_title, reference_df = owidex::refs))
 
 test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target = "target",
                         NodeID = "NodeID", Group = "domain", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
