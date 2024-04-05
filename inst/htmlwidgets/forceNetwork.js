@@ -167,7 +167,6 @@ HTMLWidgets.widget({
       .append("foreignObject")
       .append("xhtml:body")
       .html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +"</pre>" + 
-          "\n\nType: " + d.type +
           "\n\nEffect: " + d.effect +
           "\nArea: " + d.area +
           "\nConfidence: " + d.confidence +
