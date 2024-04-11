@@ -47,7 +47,7 @@ HTMLWidgets.widget({
     
     // add fixed positions for nodes (hence force is not needed anymore but eh...)
     nodes.forEach(node => {
-        node.fx = node.x;
+        node.fx = node.x+300; // manual fixing because viewbox does not seems to work (I mean it does, but not with golem, it works at first then it gets back to the initial position)
         node.fy = node.y;
     });
 
@@ -263,20 +263,20 @@ HTMLWidgets.widget({
       //if (options.focusOnHover) {
         var unfocusDivisor = 4; // related to link opacity when we mouse over a node
 
-        link.transition().duration(200)
+        link.transition().duration(0) // note: I put all transition duration to 0 to avoid unecessary "smooth" effects.
           //.style("opacity", function(l) { return d != l.source && d != l.target ? +options.opacity / unfocusDivisor : +options.opacity });
           .style("opacity", function(l) { return d != l.source && d != l.target ? 0 : +options.opacity }); // non-targeted links -> opacity = 0
 
-        node.transition().duration(200)
+        node.transition().duration(0)
           .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; });
       //}
         
       d3.select(this).select("circle").transition()
-        .duration(750)
-        .attr("r", function(d){return nodeSize(d)+5;});
-        //.attr("r", function(d){return nodeSize(d);}); // +5 not needed for our application
+        .duration(0)
+        //.attr("r", function(d){return nodeSize(d)+5;});
+        .attr("r", function(d){return nodeSize(d);}); // +5 not needed for our application
       d3.select(this).select("text").transition()
-        .duration(750)
+        .duration(0)
         //.attr("x", 13)
         .style("stroke-width", ".5px")
         .style("font", options.clickTextSize + "px ")
@@ -289,10 +289,10 @@ HTMLWidgets.widget({
       //link.style("stroke-width", 3);
 
       d3.select(this).select("circle").transition()
-        .duration(750)
+        .duration(0)
         .attr("r", function(d){return nodeSize(d);});
       d3.select(this).select("text").transition()
-        .duration(1250)
+        .duration(0)
         .attr("x", 0)
         .style("font", options.fontSize + "px ")
         .style("opacity", options.opacityNoHover);

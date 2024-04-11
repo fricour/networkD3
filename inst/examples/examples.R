@@ -238,7 +238,7 @@ links <- links |>
 test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target = "target",
                         NodeID = "NodeID", Group = "domain", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
                         text_anchor = "text_anchor",
-                        zoom = TRUE, opacity = 1, legend = TRUE,
+                        zoom = TRUE, opacity = 1, legend = FALSE,
                         arrows = TRUE, linkColour = links$colour_sign, Value = "effect",
                         fontSize = 12, opacityNoHover = 1, linkDistance = 200,
                         fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
@@ -257,15 +257,15 @@ links.forEach(function(link) {
 });'
 
 ## test with sankey diagram
-
-URL <- paste0('https://cdn.rawgit.com/christophergandrud/networkD3/',
-                   'master/JSONdata/energy.json')
-energy <- jsonlite::fromJSON(URL)
-
-# Plot
-p <- sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
-              Target = 'target', Value = 'value', NodeID = 'name',
-              units = 'TWh', fontSize = 12, nodeWidth = 30)
-
-p$x$links$confidence <- 100
-p
+# 
+# URL <- paste0('https://cdn.rawgit.com/christophergandrud/networkD3/',
+#                    'master/JSONdata/energy.json')
+# energy <- jsonlite::fromJSON(URL)
+# 
+# # Plot
+# p <- sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
+#               Target = 'target', Value = 'value', NodeID = 'name',
+#               units = 'TWh', fontSize = 12, nodeWidth = 30)
+# 
+# p$x$links$confidence <- 100
+# p
