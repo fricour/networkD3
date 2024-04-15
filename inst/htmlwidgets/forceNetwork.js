@@ -47,8 +47,8 @@ HTMLWidgets.widget({
     
     // add fixed positions for nodes (hence force is not needed anymore but eh...)
     nodes.forEach(node => {
-        node.fx = node.x+300; // manual fixing because viewbox does not seems to work (I mean it does, but not with golem, it works at first then it gets back to the initial position)
-        node.fy = node.y;
+        node.fx = node.x+350; // manual fixing because viewbox does not seems to work (I mean it does, but not with golem, it works at first then it gets back to the initial position)
+        node.fy = node.y+50;
     });
 
     // create linkedByIndex to quickly search for node neighbors
@@ -224,7 +224,8 @@ HTMLWidgets.widget({
       .style("text-anchor", function(d) { return d.text_anchor; })
       .style("font", options.fontSize + "px " + options.fontFamily)
       .style("opacity", options.opacityNoHover)
-      .style("pointer-events", "none");
+      .style("pointer-events", "none")
+      .style("fill", "black"); // Set text color to black
 
     function tick() {
       node.attr("transform", function(d) {

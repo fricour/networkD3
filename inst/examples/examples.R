@@ -238,7 +238,7 @@ links <- links |>
 test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source", Target = "target",
                         NodeID = "NodeID", Group = "domain", X = "x", Y = "y", dx = "dx", dy = "dy", rotate_angle = "rotation", 
                         text_anchor = "text_anchor",
-                        zoom = TRUE, opacity = 1, legend = FALSE,
+                        zoom = TRUE, opacity = 1, legend = TRUE,
                         arrows = TRUE, linkColour = links$colour_sign, Value = "effect",
                         fontSize = 12, opacityNoHover = 1, linkDistance = 200,
                         fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
