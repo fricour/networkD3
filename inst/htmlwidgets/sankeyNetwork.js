@@ -173,7 +173,9 @@ HTMLWidgets.widget({
             //.html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +
             //    "\n" + format(d.value) + " " + options.units + "</pre>"; });
             .html(function(d) { return "<pre>" + d.source.name + " \u2192 " + d.target.name +"</pre>" + 
-            "\n\nMean confidence: " + d.confidence
+            "\n\nMean confidence: " + d.confidence + 
+            "\nNumber of positive pathways: " + d.num_positive_pathways +
+            "\nNumber of negative pathways: " + d.num_negative_pathways
       });
 
         node.append("rect")
