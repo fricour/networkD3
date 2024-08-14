@@ -244,19 +244,19 @@ test <- networkD3::forceNetwork(Links = links, Nodes = nodes, Source = "source",
                         fontFamily = "sans serif", bounded = FALSE, height = 800, width = 600,
                         colourScale = htmlwidgets::JS('d3.scaleOrdinal().domain(["turbine", "scour protection layer", "soft sediment", "water column", "pressures - functions - services"]).range(["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "black"])'))
 
-#test$x$links$hyperlink <- "'http://en.wikipedia.org/wiki/' 'https://google.com'"
-test$x$links$hyperlink <- links$url
-
-test$x$options$clickAction <- 'window.open(d.hyperlink)'
-
-test$x$options$clickAction <- 'var links = ["https://google.com", "https://example.org", "https://example.net"];
-
-// Open each link in a new window/tab
-links.forEach(function(link) {
-    window.open(link);
-});'
-
-## test with sankey diagram
+# #test$x$links$hyperlink <- "'http://en.wikipedia.org/wiki/' 'https://google.com'"
+# test$x$links$hyperlink <- links$url
+# 
+# test$x$options$clickAction <- 'window.open(d.hyperlink)'
+# 
+# test$x$options$clickAction <- 'var links = ["https://google.com", "https://example.org", "https://example.net"];
+# 
+# // Open each link in a new window/tab
+# links.forEach(function(link) {
+#     window.open(link);
+# });'
+# 
+# ## test with sankey diagram
 # 
 # URL <- paste0('https://cdn.rawgit.com/christophergandrud/networkD3/',
 #                    'master/JSONdata/energy.json')

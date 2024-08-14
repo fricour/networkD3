@@ -5,17 +5,15 @@ HTMLWidgets.widget({
   type: "output",
 
   initialize: function(el, width, height) {
-
     d3.select(el).append("svg")
         .attr("width", width)
         .attr("height", height)
-        .attr("viewBox", [0, 0, width, height]); // added viewBox to center plot manually
+        .attr("viewBox", [0, 0, width, height]);
         
     return d3.forceSimulation();
   },
 
   resize: function(el, width, height, force) {
-
     d3.select(el).select("svg")
         .attr("width", width)
         .attr("height", height)
@@ -26,33 +24,23 @@ HTMLWidgets.widget({
   },
 
   renderValue: function(el, x, force) {
-
-  // Compute the node radius  using the javascript math expression specified
     function nodeSize(d) {
-            if(options.nodesize){
-                    return eval(options.radiusCalculation);
-
-            }else{
-                    return 6}
-
+      if(options.nodesize){
+        return eval(options.radiusCalculation);
+      } else {
+        return 6;
+      }
     }
 
-
-    // alias options
     var options = x.options;
-
-    // convert links and nodes data frames to d3 friendly format
     var links = HTMLWidgets.dataframeToD3(x.links);
     var nodes = HTMLWidgets.dataframeToD3(x.nodes);
     
-    // add fixed positions for nodes (hence force is not needed anymore but eh...)
     nodes.forEach(node => {
-        node.fx = node.x+350; // manual fixing because viewbox does not seems to work (I mean it does, but not with golem, it works at first then it gets back to the initial position)
-        node.fy = node.y+50;
+        node.fx = node.x + 350;
+        node.fy = node.y + 50;
     });
 
-    // create linkedByIndex to quickly search for node neighbors
-    // adapted from: http://stackoverflow.com/a/8780277/4389763
     var linkedByIndex = {};
     links.forEach(function(d) {
       linkedByIndex[d.source + "," + d.target] = 1;
@@ -62,16 +50,14 @@ HTMLWidgets.widget({
       return linkedByIndex[a.index + "," + b.index];
     }
 
-    // get the width and height
     var width = el.offsetWidth;
     var height = el.offsetHeight;
 
     var color = eval(options.colourScale);
+    var shape = d3.scaleOrdinal(d3.symbols);
 
-    // set this up even if zoom = F
     var zoom = d3.zoom();
 
-    // create d3 force layout
     force
       .nodes(d3.values(nodes))
       .force("link", d3.forceLink(links).distance(options.linkDistance))
@@ -81,51 +67,46 @@ HTMLWidgets.widget({
 
     force.alpha(1).restart();
 
-      var drag = d3.drag()
-        .on("start", dragstart)
-        .on("drag", dragged)
-        .on("end", dragended)
-      function dragstart(d) {
-        if (!d3.event.active) force.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      }
-      function dragged(d) {
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
-      }
-      function dragended(d) {
-        if (!d3.event.active) force.alphaTarget(0);
-        d.fx = d3.event.x; // Flo: stop the drag at the point where it is dragged
-        d.fy = d3.event.y; // Flo: same comment
-      }
+    var drag = d3.drag()
+      .on("start", dragstart)
+      .on("drag", dragged)
+      .on("end", dragended);
 
-    // select the svg element and remove existing children
+    function dragstart(d) {
+      if (!d3.event.active) force.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+    function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+    function dragended(d) {
+      if (!d3.event.active) force.alphaTarget(0);
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+
     var svg = d3.select(el).select("svg");
     svg.selectAll("*").remove();
-    // add two g layers; the first will be zoom target if zoom = T
-    //  fine to have two g layers even if zoom = F
     svg = svg
         .append("g").attr("class","zoom-layer")
-        .append("g")
+        .append("g");
 
-    // add zooming if requested
     if (options.zoom) {
       function redraw() {
         d3.select(el).select(".zoom-layer")
           .attr("transform", d3.event.transform);
       }
-      zoom.on("zoom", redraw)
+      zoom.on("zoom", redraw);
 
       d3.select(el).select("svg")
         .attr("pointer-events", "all")
         .call(zoom);
-
     } else {
       zoom.on("zoom", null);
     }
     
-    // create a tooltip -> not working -> see link.append(title)
     var tooltip = svg.append('div')
          .attr('class','tooltip')
          .style("position", "absolute")
@@ -133,24 +114,22 @@ HTMLWidgets.widget({
          .attr('width', 200)
          .attr('height', 200)
          .attr('id', 'tooltip')
-         .text("a simple tooltip")
+         .text("a simple tooltip");
 
-    // draw links
     var link = svg.selectAll(".link")
       .data(links)
       .enter().append("line")
       .attr("class", "link")
-      .style("stroke", function(d) { return d.colour ; })
-      //.style("stroke", options.linkColour)
+      .style("stroke", function(d) { return d.colour; })
       .style("opacity", 1)
       .style("stroke-width", eval("(" + options.linkWidth + ")"))
       .on("click", click)
       .on("mouseover", function(d) { 
           d3.select(this)
             .style("opacity", 1)
-            .style("stroke-width", 5)
+            .style("stroke-width", 5);
       })
-      .on("mouseout", function(d) { // remove mouseout effect for links (to keep them highlighted until we change the node)
+      .on("mouseout", function(d) {
           d3.select(this)
             .style("opacity", 1)
             .style("stroke-width", eval("(" + options.linkWidth + ")"));
@@ -160,9 +139,8 @@ HTMLWidgets.widget({
         format = function(d) { 
             if (typeof d === "string") return d;
             return formatNumber(d); 
-        }
+        };
       
-    // replace non working tootip
     link.append("title")
       .append("foreignObject")
       .append("xhtml:body")
@@ -170,9 +148,8 @@ HTMLWidgets.widget({
           "\n\nEffect: " + d.effect +
           "\nArea: " + d.area +
           "\nConfidence: " + d.confidence +
-          "\n\nReference(s): \n" + d.reference
+          "\n\nReference(s): \n" + d.reference;
       });
-      
 
     if (options.arrows) {
       link.style("marker-end",  function(d) { return "url(#arrow-" + d.colour + ")"; });
@@ -195,7 +172,6 @@ HTMLWidgets.widget({
             .attr("d", "M0,-5 L10,0 L0,5");
     }
     
-    // draw nodes
     var node = svg.selectAll(".node")
       .data(force.nodes())
       .enter().append("g")
@@ -203,54 +179,56 @@ HTMLWidgets.widget({
       .style("fill", function(d) { return color(d.group); })
       .style("opacity", options.opacity)
       .on("mouseover", mouseover)
-      .on("mouseout", mouseout) // not needed in our application
-      //.on("click", click)
+      .on("mouseout", mouseout)
       .call(drag);
 
-    node.append("circle")
-      .attr("r", function(d){return nodeSize(d);})
+    node.append("path")
+      .attr("d", d3.symbol()
+        .type(function(d) { return shape(d.group); })
+        .size(function(d) { return nodeSize(d) * nodeSize(d) * Math.PI; })
+      )
       .style("stroke", "#fff")
       .style("opacity", options.opacity)
-      .style("stroke-width", "1.5px")
+      .style("stroke-width", "1.5px");
 
     node.append("svg:text")
       .attr("class", "nodetext")
-      .attr("dx", function(d) { return d.dx; }) // Flo added
-      .attr("dy", function(d) { return d.dy; }) // Flo added
-      .attr("transform", function(d) { // Flo added
+      .attr("dx", function(d) { return d.dx; })
+      .attr("dy", function(d) { return d.dy; })
+      .attr("transform", function(d) {
           return "rotate(" + d.rotation + ")"; 
        })
-      .text(function(d) { return d.name })
+      .text(function(d) { return d.name; })
       .style("text-anchor", function(d) { return d.text_anchor; })
       .style("font", options.fontSize + "px " + options.fontFamily)
       .style("opacity", options.opacityNoHover)
       .style("pointer-events", "none")
-      .style("fill", "black"); // Set text color to black
+      .style("fill", "black");
 
     function tick() {
       node.attr("transform", function(d) {
-        if(options.bounded){ // adds bounding box
+        if(options.bounded){
             d.x = Math.max(nodeSize(d), Math.min(width - nodeSize(d), d.x));
             d.y = Math.max(nodeSize(d), Math.min(height - nodeSize(d), d.y));
         }
-
-        return "translate(" + d.x + "," + d.y + ")"});
+        return "translate(" + d.x + "," + d.y + ")";
+      });
 
       function idx(d, type) {
         var linkWidthFunc = eval("(" + options.linkWidth + ")");
-			  var a = d.target.x - d.source.x;
-			  var b = d.target.y - d.source.y;
-			  var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-  			if (type == "x1") return (d.source.x + ((nodeSize(d.source) * a) / c));
-  			if (type == "y1") return (d.source.y + ((nodeSize(d.source) * b) / c));
-  			if (options.arrows) {
-  			  if (type == "x2") return (d.target.x - ((((5 * linkWidthFunc(d)) + nodeSize(d.target)) * a) / c));
-  			  if (type == "y2") return (d.target.y - ((((5 * linkWidthFunc(d)) + nodeSize(d.target)) * b) / c));
-  			} else {
-  			  if (type == "x2") return (d.target.x - ((nodeSize(d.target) * a) / c));
-  			  if (type == "y2") return (d.target.y - ((nodeSize(d.target) * b) / c));
-  			}
-		  }
+        var a = d.target.x - d.source.x;
+        var b = d.target.y - d.source.y;
+        var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+        if (type == "x1") return (d.source.x + ((nodeSize(d.source) * a) / c));
+        if (type == "y1") return (d.source.y + ((nodeSize(d.source) * b) / c));
+        if (options.arrows) {
+          if (type == "x2") return (d.target.x - ((((5 * linkWidthFunc(d)) + nodeSize(d.target)) * a) / c));
+          if (type == "y2") return (d.target.y - ((((5 * linkWidthFunc(d)) + nodeSize(d.target)) * b) / c));
+        } else {
+          if (type == "x2") return (d.target.x - ((nodeSize(d.target) * a) / c));
+          if (type == "y2") return (d.target.y - ((nodeSize(d.target) * b) / c));
+        }
+      }
 
       link
         .attr("x1", function(d) { return idx(d, "x1"); })
@@ -260,25 +238,22 @@ HTMLWidgets.widget({
     }
 
     function mouseover(d) {
-      // unfocus non-connected links and nodes
-      //if (options.focusOnHover) {
-        var unfocusDivisor = 4; // related to link opacity when we mouse over a node
+      var unfocusDivisor = 4;
 
-        link.transition().duration(0) // note: I put all transition duration to 0 to avoid unecessary "smooth" effects.
-          //.style("opacity", function(l) { return d != l.source && d != l.target ? +options.opacity / unfocusDivisor : +options.opacity });
-          .style("opacity", function(l) { return d != l.source && d != l.target ? 0 : +options.opacity }); // non-targeted links -> opacity = 0
+      link.transition().duration(0)
+        .style("opacity", function(l) { return d != l.source && d != l.target ? 0 : +options.opacity; });
 
-        node.transition().duration(0)
-          .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; });
-      //}
+      node.transition().duration(0)
+        .style("opacity", function(o) { return d.index == o.index || neighboring(d, o) ? +options.opacity : +options.opacity / unfocusDivisor; });
         
-      d3.select(this).select("circle").transition()
+      d3.select(this).select("path").transition()
         .duration(0)
-        //.attr("r", function(d){return nodeSize(d)+5;});
-        .attr("r", function(d){return nodeSize(d);}); // +5 not needed for our application
+        .attr("d", d3.symbol()
+          .type(function(d) { return shape(d.group); })
+          .size(function(d) { return nodeSize(d) * nodeSize(d) * Math.PI; })
+        );
       d3.select(this).select("text").transition()
         .duration(0)
-        //.attr("x", 13)
         .style("stroke-width", ".5px")
         .style("font", options.clickTextSize + "px ")
         .style("opacity", 1);
@@ -287,52 +262,58 @@ HTMLWidgets.widget({
     function mouseout() {
       node.style("opacity", +options.opacity);
       link.style("opacity", +options.opacity); 
-      //link.style("stroke-width", 3);
 
-      d3.select(this).select("circle").transition()
+      d3.select(this).select("path").transition()
         .duration(0)
-        .attr("r", function(d){return nodeSize(d);});
+        .attr("d", d3.symbol()
+          .type(function(d) { return shape(d.group); })
+          .size(function(d) { return nodeSize(d) * nodeSize(d) * Math.PI; })
+        );
       d3.select(this).select("text").transition()
         .duration(0)
-        .attr("x", 0)
         .style("font", options.fontSize + "px ")
         .style("opacity", options.opacityNoHover);
     }
 
     function click(d) {
-      return eval(options.clickAction)
+      return eval(options.clickAction);
     }
 
-    // add legend option
-    if(options.legend){
-        var legendRectSize = 18;
-        var legendSpacing = 4;
-        var legend = d3.select(el).select('svg').selectAll('.legend')
-          .data(color.domain())
-          .enter()
-          .append('g')
-          .attr('class', 'legend')
-          .attr('transform', function(d, i) {
-            var height = legendRectSize + legendSpacing;
-            var offset =  height * color.domain().length / 2;
-            var horz = legendRectSize;
-            var vert = i * height+4;
-            return 'translate(' + horz + ',' + vert + ')';
-          });
+if(options.legend){
+    var legendRectSize = 18;
+    var legendShapeSize = 64; // This controls the size of the shape. Decrease this value to make shapes smaller.
+    var legendSpacing = 4;
+    var legend = d3.select(el).select('svg').selectAll('.legend')
+      .data(color.domain())
+      .enter()
+      .append('g')
+      .attr('class', 'legend')
+      .attr('transform', function(d, i) {
+        var height = legendRectSize + legendSpacing;
+        var offset =  height * color.domain().length / 2;
+        var horz = legendRectSize;
+        var vert = i * height + 4;
+        return 'translate(' + horz + ',' + vert + ')';
+      });
 
-        legend.append('rect')
-          .attr('width', legendRectSize)
-          .attr('height', legendRectSize)
-          .style('fill', color)
-          .style('stroke', color);
+    legend.append('path')
+      .attr('d', d3.symbol()
+        .type(function(d) { return shape(d); })
+        .size(legendShapeSize) // Use the new legendShapeSize here
+      )
+      .attr('transform', function(d) {
+        return 'translate(' + (legendRectSize / 2) + ',' + (legendRectSize / 2) + ')';
+      })
+      .style('fill', color)
+      .style('stroke', color);
 
-        legend.append('text')
-          .attr('x', legendRectSize + legendSpacing)
-          .attr('y', legendRectSize - legendSpacing)
-          .text(function(d) { return d; });
-    }
+    legend.append('text')
+      .attr('x', legendRectSize + legendSpacing)
+      .attr('y', legendRectSize / 2)
+      .attr('dy', '.35em') // Vertically center the text
+      .text(function(d) { return d; });
+}
 
-    // make font-family consistent across all elements
     d3.select(el).selectAll('text').style('font-family', options.fontFamily);
   },
 });
